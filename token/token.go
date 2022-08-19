@@ -25,8 +25,8 @@ const (
 	DIV    = "/"
 
 	//分隔符
-	COMMA = ""
-	SEMICOLON
+	COMMA     = ","
+	SEMICOLON = ";"
 
 	LPAREN = "("
 	RPAREN = ")"
