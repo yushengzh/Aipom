@@ -1,14 +1,24 @@
 # Aipom
-**Aipom** is a kind of basic C-class interpreter written in golang, which is also a kind of cute 🐵 *Pokémon*.
+This toy project is based on the implementation of *[Monkey](https://interpreterbook.com/)*. **ANYWAY**, this project has been extended from the very origin and I named it  *Aipom*, which would be introduced as followed.  
 
-### Lexer
+**Aipom** is a basic interpreter for a C-class programming language  written in golang, which is also a kind of cute 🐵 *Pokémon*.
 
-#### Basic
+### Log
 
-```go
-Aipom>go test ./lexer
-ok      Aipom/lexer     0.243s
-```
+- 2022/8/28：I successfully extend the *Lexer*. which could be used to generate lexical unit now. Extensions are as follows.
+  - Postfix operators: `++`, `+=`, `--`. `-=`
+  - Single-line commit
+  - Besides `<` and `>`, I added general comparision operations `<=` and `>=`
+  - Logical/Bitwise AND/OR: `&`, `&&`, `|`, `||`
+  - Pow operation: `^`
 
 
+
+---------
+
+### Installation
+
+-------------
+
+### Syntax
 

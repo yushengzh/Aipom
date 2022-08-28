@@ -55,14 +55,33 @@ func newToken(tokenType token.TokenType, curChar byte) token.Token {
  */
 func (lexer *Lexer) NextToken() token.Token {
 	var tok token.Token
+
 	lexer.skipWhitespace() //
+
 	switch lexer.curChar {
 	case '=':
-		tok = newToken(token.ASSIGN, lexer.curChar)
+		if lexer.peekChar() == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.EQ, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.ASSIGN, lexer.curChar)
+		}
+
 	case '+':
-		tok = newToken(token.PLUS, lexer.curChar)
-	//case "++":
-	//	tok = newToken(token.DOUBLE_PLUS, lexer.curChar)
+		pc := lexer.peekChar()
+		if pc == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.EQUAL_PLUS, Literal: string(ch) + string(lexer.curChar)}
+		} else if pc == '+' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.DOUBLE_PLUS, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.PLUS, lexer.curChar)
+		}
+
 	case '-':
 		tok = newToken(token.MINUS, lexer.curChar)
 	case '*':
@@ -71,6 +90,50 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.DIV, lexer.curChar)
 	case '%':
 		tok = newToken(token.MOD, lexer.curChar)
+	case '^':
+		tok = newToken(token.POW, lexer.curChar)
+	case '<':
+		if lexer.peekChar() == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.LEG, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.LT, lexer.curChar)
+		}
+
+	case '>':
+		if lexer.peekChar() == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.GEQ, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.GT, lexer.curChar)
+		}
+	case '!':
+		if lexer.peekChar() == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			literal := string(ch) + string(lexer.curChar)
+			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
+		} else {
+			tok = newToken(token.BANG, lexer.curChar)
+		}
+	case '&':
+		if lexer.peekChar() == '&' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.AND, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.BITWISE_AND, lexer.curChar)
+		}
+	case '|':
+		if lexer.peekChar() == '|' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.OR, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.BITWISE_OR, lexer.curChar)
+		}
 	case ';':
 		tok = newToken(token.SEMICOLON, lexer.curChar)
 	case ',':
@@ -83,7 +146,8 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, lexer.curChar)
 	case '}':
 		tok = newToken(token.RBRACE, lexer.curChar)
-
+	case '#':
+		tok = newToken(token.ANNOTATION, lexer.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -92,6 +156,11 @@ func (lexer *Lexer) NextToken() token.Token {
 			// 标识符和关键字的词法分析
 			tok.Literal = lexer.readIdentifier()
 			tok.Type = token.LookupId(tok.Literal)
+			return tok
+		} else if isDigit(lexer.curChar) {
+			// 数字的词法分析
+			tok.Type = token.INT
+			tok.Literal = lexer.readNum()
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, lexer.curChar) //非字母字符 --> 返回token.ILLEGAL
@@ -103,7 +172,7 @@ func (lexer *Lexer) NextToken() token.Token {
 
 // 判断读入字符是否为字母 (下划线_允许在标识符和关键字中使用)
 func isLetter(ch byte) bool {
-	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '-'
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 /*
@@ -118,11 +187,35 @@ func (lexer *Lexer) readIdentifier() string {
 	return lexer.input[pos:lexer.position]
 }
 
+// 判断读入字符是否为数字
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+func (lexer *Lexer) readNum() string {
+	pos := lexer.position
+	for isDigit(lexer.curChar) {
+		lexer.readCharascii()
+	}
+	return lexer.input[pos:lexer.position]
+}
+
 /*
  * 跳过空白字符' '
  */
 func (lexer *Lexer) skipWhitespace() {
 	for lexer.curChar == ' ' || lexer.curChar == '\r' || lexer.curChar == '\t' || lexer.curChar == '\n' {
-		lexer.readChar()
+		lexer.readCharascii()
+	}
+}
+
+/*
+ * 窥视函数
+ * 返回输入(input)的下一个字符 了解下一步调用readChar()的返回值
+ */
+func (lexer *Lexer) peekChar() byte {
+	if lexer.readPosition >= len(lexer.input) {
+		return 0
+	} else {
+		return lexer.input[lexer.readPosition]
 	}
 }
