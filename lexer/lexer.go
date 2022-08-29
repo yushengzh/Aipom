@@ -83,7 +83,18 @@ func (lexer *Lexer) NextToken() token.Token {
 		}
 
 	case '-':
-		tok = newToken(token.MINUS, lexer.curChar)
+		pc := lexer.peekChar()
+		if pc == '=' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.EQUAL_MINUS, Literal: string(ch) + string(lexer.curChar)}
+		} else if pc == '+' {
+			ch := lexer.curChar
+			lexer.readCharascii()
+			tok = token.Token{Type: token.DOUBLE_MINUS, Literal: string(ch) + string(lexer.curChar)}
+		} else {
+			tok = newToken(token.MINUS, lexer.curChar)
+		}
 	case '*':
 		tok = newToken(token.MUL, lexer.curChar)
 	case '/':
