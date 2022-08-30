@@ -11,8 +11,8 @@ This toy project is based on the implementation of *[Monkey](https://interpreter
   - Besides `<` and `>`, I added general comparision operations `<=` and `>=`
   - Logical/Bitwise AND/OR: `&`, `&&`, `|`, `||`
   - Pow operation: `^`
-
 - 2022/8/29：I accomplished the basic REPL. I can generate lexical unit interactively via REPL.
+- 2022/8/30：First step: struct *AST*
 
 ---------
 
