@@ -43,7 +43,7 @@ func (pro *Program) TokenLiteral() string {
 
 /* 标识符 */
 type Identifier struct {
-	Token token.Token
+	Token token.Token //token.IDENT词法单元
 	Value string
 }
 
